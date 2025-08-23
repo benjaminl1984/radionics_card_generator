@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radionics Card Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            box-sizing: border-box; /* Ensure padding doesn't add to total width */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 10px; /* Add some horizontal padding for smaller screens */
+        }
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0;
+            color: #4a5568;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .input-frame {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            box-sizing: border-box;
+        }
+        .card-container {
+            flex: 0 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            width: 100%; /* Full width on small screens */
+            max-width: 550px; /* Limit width on larger screens */
+        }
+        .card-details, .font-options, .mode-options, .numbers-frame {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .card-details:hover, .font-options:hover, .mode-options:hover, .numbers-frame:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+        .card-details label, .font-options label, .mode-options label, .numbers-frame label {
+            display: block;
+            text-align: left;
+            margin: 8px 0;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .card-details input, .font-options input, .font-options select, .mode-options select, .numbers-frame input {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: 10px;
+            margin: 5px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .card-details input:focus, .font-options input:focus, .font-options select:focus, .mode-options select:focus, .numbers-frame input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+        .font-row, .mode-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .font-row > div, .mode-row > div {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex: 1;
+            min-width: 120px;
+        }
+        .font-row input[type="checkbox"] {
+            width: auto;
+            margin: 5px 0;
+        }
+        .button-frame {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            flex-grow: 1; /* Allow buttons to grow */
+            min-width: 120px; /* Ensure buttons don't get too small */
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #status-bar {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: left;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            min-height: 20px;
+            backdrop-filter: blur(5px);
+        }
+        .status-success { border-color: #48bb78; color: #2d5016; background: rgba(72, 187, 120, 0.1); }
+        .status-error { border-color: #f56565; color: #742a2a; background: rgba(245, 101, 101, 0.1); }
+        .status-info { border-color: #4299e1; color: #2a4365; background: rgba(66, 153, 225, 0.1); }
+        canvas {
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            margin-top: 15px;
+            background-color: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            max-width: 100%; /* Make canvas responsive */
+            height: auto; /* Maintain aspect ratio */
+            display: block; /* Remove extra space below canvas */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        canvas:hover {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            width: 100%; /* Ensure tooltip container takes full width */
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1000;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%); /* Center tooltip */
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            white-space: normal; /* Allow text to wrap */
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .mode-description {
+            font-size: 12px;
+            color: #718096;
+            font-style: italic;
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(237, 242, 247, 0.8);
+            border-radius: 6px;
+        }
+        .live-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 0;
+            }
+            .main-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .input-frame, .card-container {
+                min-width: unset;
+                max-width: 100%;
+                padding: 15px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .font-row, .mode-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .font-row > div, .mode-row > div {
+                min-width: unset;
+                width: 100%;
+            }
+            .card-details input, .font-options input, .font-options select, .mode-options select, .numbers-frame input {
+                width: calc(100% - 20px); /* Re-adjust for smaller padding */
+            }
+            .button-frame {
+                flex-direction: column;
+                gap: 10px;
+            }
+            button {
+                width: 100%;
+                min-width: unset;
+            }
+            .tooltip .tooltiptext {
+                width: 90%; /* Adjust tooltip width for small screens */
+                left: 50%;
+                transform: translateX(-50%);
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Radionics Card Generator</h1>
+            <p>Create powerful radionic cards with precision</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="input-frame">
+                <div class="live-indicator"></div>
+                
+                <!-- Mode Selection -->
+                <div class="mode-options">
+                    <label for="mode">🔮 Select Radionics Mode:</label>
+                    <div class="tooltip">
+                        <select id="mode" onchange="updateModeDescription()">
+                            <option value="base44">Base 44 (0-44, space separated)</option>
+                            <option value="base336">Base 336 (0-9, no spaces)</option>
+                            <option value="base10">Base 10 (0-10, space separated)</option>
+                            <option value="hieronymus">Hieronymus (Left-Right pairs: 0.00-100.00)</option>
+                        </select>
+                        <span class="tooltiptext">Select the radionics mode for rate calculation. Each mode has different number ranges and formatting rules.</span>
+                    </div>
+                    <div id="mode-description" class="mode-description"></div>
+                    <div style="margin-top: 15px;">
+                        <label>
+                            <input type="checkbox" id="showSectors" onchange="updateCard()">
+                            📊 Show sector divisions (grid lines)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Card Details -->
+                <div class="card-details">
+                    <label for="name">🎯 Card Name:</label>
+                    <div class="tooltip">
+                        <input type="text" id="name" placeholder="Enter the name for the card" maxlength="50" onchange="updateCard()">
+                        <span class="tooltiptext">Enter the main name for the card (e.g., 'Healing Energy', 'Protection Shield'). Maximum 50 characters.</span>
+                    </div>
+                    <label for="description">📝 Description:</label>
+                    <div class="tooltip">
+                        <input type="text" id="description" placeholder="Enter the description" maxlength="80" onchange="updateCard()">
+                        <span class="tooltiptext">Add a brief description for the card's purpose (e.g., 'For general well-being'). Maximum 80 characters.</span>
+                    </div>
+                </div>
+
+                <!-- Font Options -->
+                <div class="font-options">
+                    <label>✍️ Font & Typography:</label>
+                    <div class="font-row">
+                        <div>
+                            <label for="fontFamily">Font Family:</label>
+                            <select id="fontFamily" onchange="updateCard()">
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Impact">Impact</option>
+                                <option value="Comic Sans MS">Comic Sans MS</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                <option value="Palatino">Palatino</option>
+                                <option value="Garamond">Garamond</option>
+                                <option value="Bookman">Bookman</option>
+                                <option value="Avant Garde">Avant Garde</option>
+                                <option value="Tahoma">Tahoma</option>
+                                <option value="Century Gothic">Century Gothic</option>
+                                <option value="Lucida Console">Lucida Console</option>
+                                <option value="Franklin Gothic Medium">Franklin Gothic Medium</option>
+                                <option value="Brush Script MT">Brush Script MT</option>
+                                <option value="Copperplate">Copperplate</option>
+                                <option value="Optima">Optima</option>
+                                <option value="Futura">Futura</option>
+                                <option value="Rockwell">Rockwell</option>
+                                <option value="Bodoni MT">Bodoni MT</option>
+                                <option value="Minion Pro">Minion Pro</option>
+                                <option value="Trajan Pro">Trajan Pro</option>
+                                <option value="Caslon">Caslon</option>
+                                <option value="Baskerville">Baskerville</option>
+                                <option value="Didot">Didot</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="fontSize">Font Size:</label>
+                            <select id="fontSize" onchange="updateCard()">
+                                <option value="8">8pt</option>
+                                <option value="10">10pt</option>
+                                <option value="12">12pt</option>
+                                <option value="14">14pt</option>
+                                <option value="16">16pt</option>
+                                <option value="18">18pt</option>
+                                <option value="20">20pt</option>
+                                <option value="22">22pt</option>
+                                <option value="24">24pt</option>
+                                <option value="26">26pt</option>
+                                <option value="28" selected>28pt</option>
+                                <option value="30">30pt</option>
+                                <option value="32">32pt</option>
+                                <option value="36">36pt</option>
+                                <option value="40">40pt</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="font-row" style="margin-top: 10px;">
+                        <div>
+                            <label>
+                                <input type="checkbox" id="fontBold" onchange="updateCard()">
+                                <strong>Bold Text</strong>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                <input type="checkbox" id="fontItalic" onchange="updateCard()">
+                                <em>Italic Text</em>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Options -->
+                <div class="font-options">
+                    <label>📏 Line Settings:</label>
+                    <div class="font-row">
+                        <div>
+                            <label for="lineThickness">Line Thickness:</label>
+                            <select id="lineThickness" onchange="updateCard()">
+                                <option value="1" selected>1px - Thin</option>
+                                <option value="2">2px - Normal</option>
+                                <option value="3">3px - Medium</option>
+                                <option value="4">4px - Thick</option>
+                                <option value="5">5px - Very Thick</option>
+                                <option value="6">6px - Extra Thick</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="lineLength">Inner Line Length:</label>
+                            <select id="lineLength" onchange="updateCard()">
+                                <option value="0.5">Short (0.5)</option>
+                                <option value="0.6">Medium-Short (0.6)</option>
+                                <option value="0.7">Medium (0.7)</option>
+                                <option value="0.8">Medium-Long (0.8)</option>
+                                <option value="0.9" selected>Long (0.9)</option>
+                                <option value="0.95">Very Long (0.95)</option>
+                                <option value="0.98">Nearly Full (0.98)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="font-row" style="margin-top: 10px;">
+                        <div>
+                            <label for="outerLineLength">Outer Line Extension:</label>
+                            <select id="outerLineLength" onchange="updateCard()">
+                                <option value="0" selected>No extension</option>
+                                <option value="6">6px extension</option>
+                                <option value="12">12px extension</option>
+                                <option value="18">18px extension</option>
+                                <option value="24">24px extension</option>
+                                <option value="30">30px extension</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Numbers Input -->
+                <div class="numbers-frame">
+                    <label id="rates-label">🔢 Enter radionic rates:</label>
+                    <div class="tooltip">
+                        <input type="text" id="ratesInput" placeholder="Enter rates according to selected mode" onchange="updatePattern()">
+                        <span class="tooltiptext">Enter rates according to the selected mode format. The preview will update automatically as you type.</span>
+                    </div>
+                </div>
+
+                <div class="font-options">
+                    <label for="logoUpload">🖼 Logo unten rechts:</label>
+                    <input type="file" id="logoUpload" accept="image/*" onchange="loadLogo(event)">
+                </div>
+
+                <div class="button-frame">
+                    <button onclick="randomizeRates()">🎲 Random Rates</button>
+                    <button onclick="saveCard()">💾 Save as JPG</button>
+                    <button onclick="copyToClipboard()">📋 Copy Rates</button>
+                </div>
+            </div>
+
+            <div class="card-container">
+                <h3>🔮 Live Preview</h3>
+                <canvas id="cardCanvas" width="515" height="622"></canvas>
+                <div id="status-bar">🚀 Application ready - Live preview active</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let logoImage = null;
+
+        function loadLogo(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                logoImage = null; // Clear logo if no file selected
+                updateCard();
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    logoImage = img;
+                    updateCard();
+                };
+                img.onerror = function() {
+                    updateStatus('Error loading logo image.', 'error');
+                    logoImage = null;
+                    updateCard();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Card dimensions and constants
+        const widthMm = (770 / (300 / 25.4)) - 3.0;
+        const heightMm = 889 / (300 / 25.4);
+        const dpi = 300;
+        const pixelsPerMm = dpi / 25.4;
+        const drawingWidthPx = Math.round(widthMm * pixelsPerMm);
+        const drawingHeightPx = Math.round(heightMm * pixelsPerMm);
+        const displayScaleFactor = 0.7;
+        const numCircles = 7;
+        const smallestDiameterMm = 43.0;
+        const largestDiameterMm = 52.0;
+        const headerHeightMm = 14.0;
+        const doubleLineThicknessMm = 0.2;
+        const doubleLineGapMm = 0.3;
+        const innerLineLengthMm = 1.5;
+
+        // Circle configuration
+        const centerX = drawingWidthPx / 2;
+        const centerY = (heightMm * pixelsPerMm * 0.65);
+        const radius = Math.round((largestDiameterMm / 2) * pixelsPerMm);
+        const innerRadius = Math.round(radius * 2 / 3);
+        
+        // Get line configuration from user settings
+        function getLineSettings() {
+            const innerLength = parseFloat(document.getElementById('lineLength').value);
+            const outerExtension = parseInt(document.getElementById('outerLineLength').value);
+            const thickness = parseInt(document.getElementById('lineThickness').value);
+            
+            return {
+                // doppelt so lang wie vorher
+                innerEnd: Math.round(((smallestDiameterMm / 2) * pixelsPerMm * innerLength) / 2),
+                outerEnd: radius + outerExtension,
+                thickness: thickness
+            };
+        }
+
+        // Current state
+        let currentRates = [];
+        let currentMode = 'base44';
+        let updateTimer;
+
+        // Canvas setup
+        const canvas = document.getElementById('cardCanvas');
+        const ctx = canvas.getContext('2d');
+        // Initial canvas size for display, will be adjusted by adjustForMobile
+        canvas.width = Math.round(drawingWidthPx * displayScaleFactor);
+        canvas.height = Math.round((drawingHeightPx + 40) * displayScaleFactor);
+
+        // Status bar update with styling
+        function updateStatus(message, type = 'info') {
+            const statusBar = document.getElementById('status-bar');
+            statusBar.textContent = `⏰ ${new Date().toLocaleTimeString()} - ${message}`;
+            statusBar.className = `status-${type}`;
+        }
+
+        // Mode descriptions
+        function updateModeDescription() {
+            const mode = document.getElementById('mode').value;
+            const descriptions = {
+                'base44': 'Enter rates 0-44, space-separated (e.g., 31 21 7 3 6)',
+                'base336': 'Enter digits 0-9, no spaces (e.g., 263146)',
+                'base10': 'Enter rates 0-10, space-separated (e.g., 2 4 6 10 2)',
+                'hieronymus': 'Enter Left-Right pairs (even number of values, e.g., 8.40 57.50 21.70 100.00)'
+            };
+            document.getElementById('mode-description').textContent = descriptions[mode];
+            document.getElementById('rates-label').textContent = '🔢 ' + descriptions[mode] + ':';
+            currentMode = mode;
+            updatePattern();
+        }
+
+        // Get base sectors for each mode
+        function getBaseSectors(mode) {
+            switch(mode) {
+                case 'base44': return 45;
+                case 'base336': return 10;
+                case 'base10': return 11;
+                case 'hieronymus': return 100;
+                default: return 45;
+            }
+        }
+
+        // Parse rates according to mode
+        function parseRates(ratesText, mode) {
+            ratesText = ratesText.trim();
+            if (!ratesText) return [];
+
+            try {
+                let rates = [];
+                
+                switch(mode) {
+                    case 'base44':
+                        rates = ratesText.split(/\s+/).map(x => parseInt(x)).filter(x => !isNaN(x));
+                        if (rates.some(r => r < 0 || r > 44)) {
+                            throw new Error('Rates must be between 0 and 44');
+                        }
+                        break;
+                        
+                    case 'base336':
+                        rates = ratesText.replace(/\s/g, '').split('').map(x => parseInt(x)).filter(x => !isNaN(x));
+                        if (rates.some(r => r < 0 || r > 9)) {
+                            throw new Error('Digits must be between 0 and 9');
+                        }
+                        break;
+                        
+                    case 'base10':
+                        rates = ratesText.split(/\s+/).map(x => parseInt(x)).filter(x => !isNaN(x));
+                        if (rates.some(r => r < 0 || r > 10)) {
+                            throw new Error('Rates must be between 0 and 10');
+                        }
+                        break;
+                        
+                    case 'hieronymus':
+                        rates = ratesText.split(/\s+/).map(x => parseFloat(x)).filter(x => !isNaN(x));
+                        if (rates.length % 2 !== 0) {
+                            throw new Error('Hieronymus mode requires even number of values (Left-Right pairs)');
+                        }
+                        if (rates.some(r => r < 0 || r > 100)) {
+                            throw new Error('Hieronymus values must be between 0.00 and 100.00');
+                        }
+                        break;
+                }
+                
+                return rates;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Calculate dynamic line positions
+        function calculateDynamicLinePositions(rates, mode) {
+            if (!rates || rates.length === 0) return [];
+
+            let positions = [];
+
+            if (mode === 'hieronymus') {
+                if (rates.length % 2 !== 0) return [];
+
+                const numPairs = rates.length / 2;
+                const pairAngle = 360 / numPairs;
+
+                for (let pairIdx = 0; pairIdx < numPairs; pairIdx++) {
+                    const leftValue = rates[pairIdx * 2];
+                    const rightValue = rates[pairIdx * 2 + 1];
+                    const baseAngle = pairIdx * pairAngle;
+                    const leftSectorAngle = pairAngle / 2;
+                    const leftAngle = baseAngle + (leftValue / 100) * leftSectorAngle;
+                    positions.push(leftAngle);
+                    const rightSectorAngle = pairAngle / 2;
+                    const rightAngle = baseAngle + leftSectorAngle + (rightValue / 100) * rightSectorAngle;
+                    positions.push(rightAngle);
+                }
+            } else {
+                const baseSectors = getBaseSectors(mode);
+                const numRates = rates.length;
+                const baseSectorAngle = 360 / baseSectors;
+
+                for (let i = 0; i < rates.length; i++) {
+                    const rate = rates[i];
+                    const subSectorAngle = baseSectorAngle / numRates;
+                    const subSectorOffset = (i + 0.5) * subSectorAngle;
+                    const angle = rate * baseSectorAngle + subSectorOffset;
+                    positions.push(angle);
+                }
+            }
+
+            return positions;
+        }
+
+        // Format rates for display
+        function formatRatesForDisplay(rates, mode) {
+            if (!rates || rates.length === 0) return "";
+
+            switch(mode) {
+                case 'base44':
+                    return rates.join(' ');
+                case 'base336':
+                    return rates.join('');
+                case 'base10':
+                    return rates.join(' ');
+                case 'hieronymus':
+                    if (rates.length % 2 === 0) {
+                        const numPairs = rates.length / 2;
+                        const pairs = [];
+                        for (let i = 0; i < numPairs; i++) {
+                            const left = rates[i * 2].toFixed(2);
+                            const right = rates[i * 2 + 1].toFixed(2);
+                            pairs.push(`${left}-${right}`);
+                        }
+                        return `L-R: ${pairs.join(' ')}`;
+                    } else {
+                        return "Invalid: Need even number of values";
+                    }
+                default:
+                    return rates.join(' ');
+            }
+        }
+
+        // Draw sector grid with enhanced styling
+        function drawSectorGrid(context, rates, mode, showSectors, scaleFactor = 1) {
+            if (!showSectors) return;
+
+            context.save();
+            if (scaleFactor !== 1) {
+                context.scale(scaleFactor, scaleFactor);
+            }
+
+            const lineSettings = getLineSettings();
+
+            if (mode === 'hieronymus' && rates && rates.length > 0) {
+                if (rates.length % 2 === 0) {
+                    const numPairs = rates.length / 2;
+                    const pairAngle = 360 / numPairs;
+
+                    // Draw main pair divisions
+                    context.strokeStyle = '#667eea';
+                    context.lineWidth = Math.round(2 / scaleFactor);
+                    for (let pairIdx = 0; pairIdx < numPairs; pairIdx++) {
+                        const angle = pairIdx * pairAngle;
+                        const angleRad = (angle - 90) * Math.PI / 180;
+
+                        const startX = centerX + innerRadius * Math.cos(angleRad);
+                        const startY = centerY + innerRadius * Math.sin(angleRad);
+                        const endX = centerX + lineSettings.innerEnd * Math.cos(angleRad);
+                        const endY = centerY + lineSettings.innerEnd * Math.sin(angleRad);
+
+                        context.beginPath();
+                        context.moveTo(startX, startY);
+                        context.lineTo(endX, endY);
+                        context.stroke();
+                    }
+
+                    // Draw left/right subdivisions
+                    context.strokeStyle = '#000000';
+                    context.globalAlpha = 0.5;
+                    context.setLineDash([Math.round(4 / scaleFactor), Math.round(4 / scaleFactor)]);
+                    for (let pairIdx = 0; pairIdx < numPairs; pairIdx++) {
+                        const baseAngle = pairIdx * pairAngle;
+                        const middleAngle = baseAngle + pairAngle / 2;
+                        const angleRad = (middleAngle - 90) * Math.PI / 180;
+
+                        const startX = centerX + innerRadius * Math.cos(angleRad);
+                        const startY = centerY + innerRadius * Math.sin(angleRad);
+                        const endX = centerX + lineSettings.innerEnd * Math.cos(angleRad);
+                        const endY = centerY + lineSettings.innerEnd * Math.sin(angleRad);
+
+                        context.beginPath();
+                        context.moveTo(startX, startY);
+                        context.lineTo(endX, endY);
+                        context.stroke();
+                    }
+                    context.setLineDash([]);
+                    context.globalAlpha = 1;
+                }
+            } else {
+                // Original grid for other modes
+                const baseSectors = getBaseSectors(mode);
+                const baseSectorAngle = 360 / baseSectors;
+
+                // Draw base sector lines
+                context.strokeStyle = '#667eea';
+                context.lineWidth = Math.round(1 / scaleFactor);
+                for (let sector = 0; sector < baseSectors; sector++) {
+                    const angle = sector * baseSectorAngle;
+                    const angleRad = (angle - 90) * Math.PI / 180;
+
+                    const startX = centerX + innerRadius * Math.cos(angleRad);
+                    const startY = centerY + innerRadius * Math.sin(angleRad);
+                    const endX = centerX + radius * Math.cos(angleRad);
+                    const endY = centerY + radius * Math.sin(angleRad);
+
+                    context.beginPath();
+                    context.moveTo(startX, startY);
+                    context.lineTo(endX, endY);
+                    context.stroke();
+                }
+
+                // Draw subdivision lines
+                if (rates && rates.length > 0 && mode !== 'hieronymus') {
+                    context.strokeStyle = '#000000';
+                    context.globalAlpha = 0.3;
+                    context.setLineDash([Math.round(2 / scaleFactor), Math.round(2 / scaleFactor)]);
+                    
+                    const numRates = rates.length;
+                    const subSectorAngle = baseSectorAngle / numRates;
+                    const uniqueRates = [...new Set(rates)];
+
+                    for (let rate of uniqueRates) {
+                        const baseAngle = rate * baseSectorAngle;
+                        for (let sub = 1; sub < numRates; sub++) {
+                            const angle = baseAngle + sub * subSectorAngle;
+                            const angleRad = (angle - 90) * Math.PI / 180;
+
+                            const startX = centerX + innerRadius * Math.cos(angleRad);
+                            const startY = centerY + innerRadius * Math.sin(angleRad);
+                            const endX = centerX + lineSettings.innerEnd * Math.cos(angleRad);
+                            const endY = centerY + lineSettings.innerEnd * Math.sin(angleRad);
+
+                            context.beginPath();
+                            context.moveTo(startX, startY);
+                            context.lineTo(endX, endY);
+                            context.stroke();
+                        }
+                    }
+                    context.setLineDash([]);
+                    context.globalAlpha = 1;
+                }
+            }
+
+            context.restore();
+        }
+
+        // Draw base card elements
+        function drawBaseCard(context, rates = [], mode = 'base44', scaleFactor = displayScaleFactor) {
+            context.save();
+            
+            if (scaleFactor !== 1) {
+                context.scale(scaleFactor, scaleFactor);
+            }
+            
+            // Background
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, drawingWidthPx, drawingHeightPx + 40);
+
+            // Frame
+            const frameThicknessPx = Math.round(0.2 * pixelsPerMm);
+            context.strokeStyle = '#000000';
+            context.lineWidth = frameThicknessPx;
+            context.strokeRect(0, 0, drawingWidthPx - 1, drawingHeightPx + 40 - 1);
+
+            // Header area and double lines
+            const headerHeightPx = Math.round(headerHeightMm * pixelsPerMm);
+            const singleLinePxThickness = Math.round(doubleLineThicknessMm * pixelsPerMm);
+            const gapPxBetweenLines = Math.round(doubleLineGapMm * pixelsPerMm);
+            
+            let currentLineY = headerHeightPx;
+            if (singleLinePxThickness > 0) {
+                context.fillStyle = '#000000';
+                context.fillRect(0, currentLineY, drawingWidthPx, singleLinePxThickness);
+                currentLineY += singleLinePxThickness + gapPxBetweenLines;
+                context.fillRect(0, currentLineY, drawingWidthPx, singleLinePxThickness);
+            }
+
+            // Circles
+            const smallestRadiusPx = (smallestDiameterMm / 2) * pixelsPerMm;
+            const largestRadiusPx = (largestDiameterMm / 2) * pixelsPerMm;
+            let radiiList = [];
+            
+            if (numCircles === 1) {
+                radiiList.push(Math.round(smallestRadiusPx));
+            } else {
+                for (let i = 0; i < numCircles; i++) {
+                    let radius = smallestRadiusPx + i * ((largestRadiusPx - smallestRadiusPx) / (numCircles - 1));
+                    radiiList.push(Math.round(radius));
+                }
+            }
+            radiiList.sort((a, b) => b - a);
+
+            context.strokeStyle = '#000000';
+            context.lineWidth = Math.round(2 / scaleFactor);
+            
+            for (let radiusItem of radiiList) {
+                context.beginPath();
+                context.arc(centerX, centerY, radiusItem, 0, 2 * Math.PI);
+                context.stroke();
+            }
+
+            // Inner reference lines
+            const innerLineLengthPx = Math.round(innerLineLengthMm * pixelsPerMm);
+            // const bodyStartYPx = currentLineY + singleLinePxThickness; // Not used directly for lines
+            // const bodyEndYPx = drawingHeightPx; // Not used directly for lines
+            
+            context.lineWidth = Math.round(1 / scaleFactor);
+            context.beginPath();
+            // Vertical lines
+            context.moveTo(drawingWidthPx / 2, currentLineY + singleLinePxThickness); // Start from below the double line
+            context.lineTo(drawingWidthPx / 2, currentLineY + singleLinePxThickness + innerLineLengthPx);
+            
+            const bottomLineHeight = 35; // Height of the line from the bottom edge
+            context.moveTo(drawingWidthPx / 2, drawingHeightPx + 40); // Start from the very bottom
+            context.lineTo(drawingWidthPx / 2, drawingHeightPx + 40 - bottomLineHeight);
+            
+            // Horizontal lines
+            context.moveTo(drawingWidthPx, centerY);
+            context.lineTo(drawingWidthPx - innerLineLengthPx, centerY);
+            context.moveTo(0, centerY);
+            context.lineTo(innerLineLengthPx, centerY);
+            context.stroke();
+
+            // Draw sector grid if enabled
+            const showSectors = document.getElementById('showSectors').checked;
+            drawSectorGrid(context, rates, mode, showSectors, scaleFactor);
+
+            // Draw rate lines
+            if (rates && rates.length > 0) {
+                const positions = calculateDynamicLinePositions(rates, mode);
+                const lineSettings = getLineSettings();
+                
+                context.strokeStyle = '#000000';
+                context.lineWidth = Math.round(lineSettings.thickness / scaleFactor);
+                
+                for (let angle of positions) {
+                    const angleRad = (angle - 90) * Math.PI / 180;
+                    
+                    // Inner line (from inner radius to inner circle edge)
+                    const offset = 40; // Pixel nach außen
+                    const innerStartX = centerX + (innerRadius + offset) * Math.cos(angleRad);
+                    const innerStartY = centerY + (innerRadius + offset) * Math.sin(angleRad);
+                    const innerEndX = centerX + (lineSettings.innerEnd + offset) * Math.cos(angleRad);
+                    const innerEndY = centerY + (lineSettings.innerEnd + offset) * Math.sin(angleRad);
+
+                    context.beginPath();
+                    context.moveTo(innerStartX, innerStartY);
+                    context.lineTo(innerEndX, innerEndY);
+                    context.stroke();
+                    
+                    // Outer line extension (from outer radius outward)
+                    if (lineSettings.outerEnd > radius) {
+                        const outerStartX = centerX + radius * Math.cos(angleRad);
+                        const outerStartY = centerY + radius * Math.sin(angleRad);
+                        const outerEndX = centerX + lineSettings.outerEnd * Math.cos(angleRad);
+                        const outerEndY = centerY + lineSettings.outerEnd * Math.sin(angleRad);
+                        
+                        context.beginPath();
+                        context.moveTo(outerStartX, outerStartY);
+                        context.lineTo(outerEndX, outerEndY);
+                        context.stroke();
+                    }
+                }
+            }
+
+            // Draw text elements
+            const name = document.getElementById('name').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const fontFamily = document.getElementById('fontFamily').value;
+            const fontSize = parseInt(document.getElementById('fontSize').value);
+            const fontBold = document.getElementById('fontBold').checked;
+            const fontItalic = document.getElementById('fontItalic').checked;
+            
+            // Calculate consistent font size for both preview and export
+            const fontSizePx = scaleFactor === 1 ? 
+                Math.round(fontSize * pixelsPerMm / 3.5) : // High-res export
+                Math.round(fontSize * displayScaleFactor * pixelsPerMm / 3.5); // Preview
+            
+            let fontWeight = fontBold ? 'bold' : 'normal';
+            let fontStyle = fontItalic ? 'italic' : 'normal';
+            
+            context.font = `${fontStyle} ${fontWeight} ${fontSizePx}px "${fontFamily}", Arial`;
+            context.fillStyle = '#000000';
+            context.textAlign = 'center';
+            
+            // Card name positioned higher in header area - better positioning
+            const headerCenterY = headerHeightPx * 0.35 + 10; // Move up from 0.5 to 0.35
+            if (name) {
+                context.fillText(name, drawingWidthPx / 2, headerCenterY);
+            }
+            
+            // Description below name - also moved up proportionally
+            if (description) {
+                const descFontSize = Math.round(fontSizePx * 0.75);
+                context.font = `${fontStyle} normal ${descFontSize}px "${fontFamily}", Arial`;
+                const descY = headerCenterY + descFontSize * 1.2; // Closer spacing
+                context.fillText(description, drawingWidthPx / 2, descY);
+            }
+
+            // Draw rates at bottom left
+            const ratesText = formatRatesForDisplay(rates, mode);
+            if (ratesText) {
+                const ratesFontSize = scaleFactor === 1 ? 
+                    Math.round(1.75 * pixelsPerMm) : // High-res export
+                    Math.round(1.75 * displayScaleFactor * pixelsPerMm); // Preview
+                context.font = `normal normal ${ratesFontSize}px Arial`;
+                context.textAlign = 'left';
+                const bottomY = drawingHeightPx + 40 - Math.round(2 * pixelsPerMm); // Position from the very bottom
+                context.fillText(ratesText, Math.round(2 * pixelsPerMm), bottomY);
+            }
+
+            // Draw logo at bottom right if available
+            if (logoImage) {
+                // Convert desired pixel size to the current drawing scale
+                const maxLogoWidth = 80 / scaleFactor; // Max width for logo in drawing pixels
+                const maxLogoHeight = 80 / scaleFactor; // Max height for logo in drawing pixels
+                const logoMargin = 5 / scaleFactor; // Margin from edges in drawing pixels
+
+                let logoWidth = logoImage.width;
+                let logoHeight = logoImage.height;
+
+                // Scale logo to fit within max dimensions while maintaining aspect ratio
+                const aspectRatio = logoWidth / logoHeight;
+
+                if (logoWidth > maxLogoWidth) {
+                    logoWidth = maxLogoWidth;
+                    logoHeight = logoWidth / aspectRatio;
+                }
+                if (logoHeight > maxLogoHeight) {
+                    logoHeight = maxLogoHeight;
+                    logoWidth = logoHeight * aspectRatio;
+                }
+
+                // Ensure it doesn't exceed the other dimension after scaling
+                if (logoWidth > maxLogoWidth) {
+                    logoWidth = maxLogoWidth;
+                    logoHeight = logoWidth / aspectRatio;
+                }
+                if (logoHeight > maxLogoHeight) {
+                    logoHeight = maxLogoHeight;
+                    logoWidth = logoHeight * aspectRatio;
+                }
+
+                const xPos = drawingWidthPx - logoWidth - logoMargin;
+                const yPos = (drawingHeightPx + 40) - logoHeight - logoMargin; // Position from the very bottom
+
+                context.drawImage(logoImage, xPos, yPos, logoWidth, logoHeight);
+            }
+
+            context.restore();
+        }
+
+        // Generate random rates based on mode
+        function randomizeRates() {
+            const mode = document.getElementById('mode').value;
+            let randomRates = [];
+            
+            switch(mode) {
+                case 'base44':
+                    const numRates44 = Math.floor(Math.random() * 6) + 3; // 3-8 rates
+                    for (let i = 0; i < numRates44; i++) {
+                        randomRates.push(Math.floor(Math.random() * 45)); // 0-44
+                    }
+                    document.getElementById('ratesInput').value = randomRates.join(' ');
+                    break;
+                    
+                case 'base336':
+                    const numRates336 = Math.floor(Math.random() * 6) + 4; // 4-9 digits
+                    for (let i = 0; i < numRates336; i++) {
+                        randomRates.push(Math.floor(Math.random() * 10)); // 0-9
+                    }
+                    document.getElementById('ratesInput').value = randomRates.join('');
+                    break;
+                    
+                case 'base10':
+                    const numRates10 = Math.floor(Math.random() * 5) + 3; // 3-7 rates
+                    for (let i = 0; i < numRates10; i++) {
+                        randomRates.push(Math.floor(Math.random() * 11)); // 0-10
+                    }
+                    document.getElementById('ratesInput').value = randomRates.join(' ');
+                    break;
+                    
+                case 'hieronymus':
+                    const numPairs = Math.floor(Math.random() * 3) + 2; // 2-4 pairs
+                    for (let i = 0; i < numPairs * 2; i++) {
+                        randomRates.push((Math.random() * 100).toFixed(2)); // 0.00-100.00
+                    }
+                    document.getElementById('ratesInput').value = randomRates.join(' ');
+                    break;
+            }
+            
+            updatePattern();
+            updateStatus(`Random ${mode} rates generated`, 'success');
+        }
+
+        // Copy rates to clipboard
+        function copyToClipboard() {
+            const ratesInput = document.getElementById('ratesInput');
+            const ratesText = ratesInput.value.trim();
+            
+            if (!ratesText) {
+                updateStatus('No rates to copy', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(ratesText).then(() => {
+                updateStatus('Rates copied to clipboard', 'success');
+            }).catch(() => {
+                // Fallback for older browsers
+                ratesInput.select();
+                document.execCommand('copy');
+                updateStatus('Rates copied to clipboard', 'success');
+            });
+        }
+
+        // Update pattern with current rates
+        function updatePattern() {
+            const ratesInput = document.getElementById('ratesInput').value;
+            const mode = document.getElementById('mode').value;
+            
+            try {
+                const rates = parseRates(ratesInput, mode);
+                currentRates = rates;
+                currentMode = mode;
+                updateCard();
+                
+                if (rates.length > 0) {
+                    if (mode === 'hieronymus') {
+                        const numPairs = rates.length / 2;
+                        updateStatus(`Hieronymus pattern updated (${numPairs} Left-Right pairs)`, 'success');
+                    } else {
+                        updateStatus(`Pattern updated (${mode} mode, ${rates.length} rates)`, 'success');
+                    }
+                } else {
+                    updateStatus('Pattern cleared', 'info');
+                }
+            } catch (error) {
+                currentRates = [];
+                updateCard();
+                updateStatus(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Update card with current settings
+        function updateCard() {
+            try {
+                drawBaseCard(ctx, currentRates, currentMode, displayScaleFactor);
+                if (currentRates.length === 0 && document.getElementById('ratesInput').value.trim() === '') {
+                    updateStatus('Card updated (no rates)', 'info');
+                }
+            } catch (error) {
+                updateStatus(`Update error: ${error.message}`, 'error');
+            }
+        }
+
+        // Format rates for filename
+        function formatRatesForFilename(rates, mode) {
+            if (!rates || rates.length === 0) return 'no-rates';
+
+            switch(mode) {
+                case 'base44':
+                    return rates.join('-');
+                case 'base336':
+                    return rates.join('');
+                case 'base10':
+                    return rates.join('-');
+                case 'hieronymus':
+                    if (rates.length % 2 === 0) {
+                        const numPairs = rates.length / 2;
+                        const pairs = [];
+                        for (let i = 0; i < numPairs; i++) {
+                            const left = rates[i * 2].toFixed(2);
+                            const right = rates[i * 2 + 1].toFixed(2);
+                            pairs.push(`L${left}-R${right}`);
+                        }
+                        return pairs.join('_');
+                    } else {
+                        return 'invalid_pairs';
+                    }
+                default:
+                    return 'unknown';
+            }
+        }
+
+        // Save card as JPG with perfect font scaling
+        function saveCard() {
+            updateStatus('Saving card as JPG...', 'info');
+            
+            try {
+                // Create high-resolution canvas for export
+                const highResCanvas = document.createElement('canvas');
+                highResCanvas.width = drawingWidthPx;
+                highResCanvas.height = drawingHeightPx + 40;
+                const highResCtx = highResCanvas.getContext('2d');
+                
+                // Draw at full resolution (scale factor = 1)
+                drawBaseCard(highResCtx, currentRates, currentMode, 1);
+                
+                // Generate filename with timestamp
+                const name = document.getElementById('name').value.trim() || 'radionics_card';
+                const mode = document.getElementById('mode').value;
+                const showSectors = document.getElementById('showSectors').checked;
+                const ratesStr = formatRatesForFilename(currentRates, mode);
+                const safeName = name.replace(/[^\w\s-]/g, '').replace(/\s+/g, '_');
+                const sectorSuffix = showSectors ? '_with_sectors' : '';
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                const filename = `${safeName}_${mode}_${ratesStr}${sectorSuffix}_${timestamp}.jpg`;
+                
+                // Convert to JPG and download
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = highResCanvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+                
+                updateStatus(`Card saved as ${filename}`, 'success');
+            } catch (error) {
+                updateStatus(`Save error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize application
+        function initApp() {
+            updateModeDescription();
+            updateCard();
+            adjustForMobile(); // Call on init to set initial canvas size
+            updateStatus('Radionics Generator ready - Simplified version loaded', 'success');
+        }
+
+        // Event listeners for real-time updates
+        document.addEventListener('DOMContentLoaded', function() {
+            // Real-time input updates
+            document.getElementById('name').addEventListener('input', function() {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(updateCard, 300);
+            });
+            
+            document.getElementById('description').addEventListener('input', function() {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(updateCard, 300);
+            });
+            
+            document.getElementById('ratesInput').addEventListener('input', function() {
+                clearTimeout(updateTimer);
+                updateTimer = setTimeout(updatePattern, 500);
+            });
+            
+            // Enter key support
+            document.getElementById('name').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    updateCard();
+                }
+            });
+            
+            document.getElementById('description').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    updateCard();
+                }
+            });
+            
+            document.getElementById('ratesInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    updatePattern();
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 's':
+                            e.preventDefault();
+                            saveCard();
+                            break;
+                        case 'c':
+                            if (e.shiftKey) {
+                                e.preventDefault();
+                                copyToClipboard();
+                            }
+                            break;
+                        case 'r':
+                            if (e.shiftKey) {
+                                e.preventDefault();
+                                randomizeRates();
+                            }
+                            break;
+                    }
+                }
+            });
+
+            initApp();
+        });
+
+        // Error handling
+        window.addEventListener('error', function(e) {
+            updateStatus(`System error: ${e.message}`, 'error');
+            console.error('Radionics Generator Error:', e);
+        });
+
+        // Mobile responsiveness
+        function adjustForMobile() {
+            const canvas = document.getElementById('cardCanvas');
+            const cardContainer = document.querySelector('.card-container');
+            
+            // Calculate the maximum width the canvas can take within its container
+            const containerWidth = cardContainer.clientWidth - (2 * 20); // container padding is 20px on each side
+            
+            // Calculate the new display scale factor based on container width
+            // We want the canvas to fit the container, maintaining its aspect ratio
+            const targetDisplayWidth = containerWidth;
+            const currentCanvasWidth = drawingWidthPx * displayScaleFactor;
+            
+            let newDisplayScaleFactor = displayScaleFactor;
+            if (targetDisplayWidth < currentCanvasWidth) {
+                newDisplayScaleFactor = targetDisplayWidth / drawingWidthPx;
+            } else {
+                // If container is wider than default scaled canvas, use default scale
+                newDisplayScaleFactor = displayScaleFactor;
+            }
+
+            // Apply the new dimensions to the canvas element
+            canvas.style.width = `${Math.round(drawingWidthPx * newDisplayScaleFactor)}px`;
+            canvas.style.height = `${Math.round((drawingHeightPx + 40) * newDisplayScaleFactor)}px`;
+
+            // Redraw the card with the potentially new display scale factor
+            // This ensures elements are drawn correctly even if the canvas CSS size changes
+            updateCard(); 
+        }
+
+        window.addEventListener('resize', adjustForMobile);
+        window.addEventListener('orientationchange', adjustForMobile);
+    </script>
+</body>
+</html>
