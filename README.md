@@ -3,7 +3,7 @@
 ## Overview
 The Radionics Card Generator is a web-based application designed to create customizable radionic cards with precision. Users can select different radionics modes, customize card appearance (including font, line settings, and rates), and generate a live preview of the card. The application supports saving the card as a JPG, copying rates, and generating random rates for convenience.
 
-(screen.png)
+![GUI] (screen.png)
 
 ## Features
 - **Radionics Modes**: Supports Base 44, Base 336, Base 10, and Hieronymus modes with specific formatting rules for rate inputs.
